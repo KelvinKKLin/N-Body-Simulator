@@ -20,7 +20,6 @@ int main(int argc, char* argv[]){
 	}
 
 	MPI_Init(&argc,&argv);
-
 	int p, my_rank;
 
 	MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
@@ -49,38 +48,38 @@ int main(int argc, char* argv[]){
 	//int width = atoi(argv[7]);
 	//int height = atoi(argv[8]);
 
-	double G = 9.8;
+	double G=0.00000000006673;
 
 	unsigned char* image = NULL;
 
 	//root node stuff goes here
 	if(my_rank == 0){
 		for(int i = 0; i < numParticleLight; i++){
-			mass[i] = 3;
-			velx[i] = 13;
-			vely[i] = 13;
+			mass[i] = massLightMin + (drand48() * ((massLightMax - massLightMin)+1));
+			velx[i] = velocityLightMin + (drand48() * ((velocityLightMax - velocityLightMin)+1));
+			vely[i] = velocityLightMin + (drand48() * ((velocityLightMax - velocityLightMin)+1));
 			x[i] = 1;//(drand48() * ((width) + 1));
 			y[i] = 2;//(drand48() * ((height) + 1));
 		}
 
 		for(int i = numParticleLight; i < numParticleLight + numParticleMedium; i++){
-			mass[i] = 8;
-			velx[i] = 8;
-			vely[i] = 8;
+			mass[i] = massMediumMin + (drand48() * ((massMediumMax - massMediumMin)+1));
+			velx[i] = velocityMediumMin + (drand48() * ((velocityMediumMax - velocityMediumMin)+1));
+			vely[i] = velocityMediumMin + (drand48() * ((velocityMediumMax - velocityMediumMin)+1));
 			x[i] = 3;//(drand48() * ((width) + 1));
 			y[i] = 4;//(drand48() * ((height) + 1));
 		}
 
 		for(int i = numParticleLight + numParticleMedium; i < n; i++){
-			mass[i] = 13;
-			velx[i] = 3;
-			vely[i] = 13;
+			mass[i] = massHeavyMin + (drand48() * ((massHeavyMax - massHeavyMin)+1));
+			velx[i] = velocityHeavyMin + (drand48() * ((velocityHeavyMax - velocityHeavyMin)+1));
+			vely[i] = velocityHeavyMin + (drand48() * ((velocityHeavyMax - velocityHeavyMin)+1));
 			x[i] = 5;//(drand48() * ((width) + 1));
 			y[i] = 6;//(drand48() * ((height) + 1));
 		}
 
 		//almost done, just save the image
-		//aveBMP(argv[9], image, width, height);
+		//saveBMP(argv[9], image, width, height);
 	}
 
 	double* localvelx = (double*) calloc(sizeof(double) * n/p, sizeof(double));
@@ -88,7 +87,7 @@ int main(int argc, char* argv[]){
 	double* locposx   = (double*) calloc(sizeof(double) * n/p, sizeof(double));
 	double* locposy   = (double*) calloc(sizeof(double) * n/p, sizeof(double));
 
-	int loc_n = n/p;
+	int loc_n = p/n;
 
 	MPI_Bcast(mass, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 	MPI_Bcast(x, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
@@ -100,6 +99,7 @@ int main(int argc, char* argv[]){
 		if(steps % subSteps == 0 && my_rank == 0){
 			for(int i = 0; i < n; i++){
 				printf("TIMESTEP: %d PARTICLE %d POSX: %f, POSY: %f VELX: %f VELY: %f\n", steps, i, x[i], y[i], velx[i], vely[i]);
+				
 			}
 		}
 
@@ -111,18 +111,19 @@ int main(int argc, char* argv[]){
 					double y_diff = y[i] - y[j];
 					double dist = sqrt(x_diff * x_diff + y_diff + y_diff);
 					double dist_cubed = dist* dist * dist;
-					forcex[i] -= G * mass[i]*mass[j] / dist_cubed * x_diff;
-					forcey[i] -= G * mass[i]*mass[j] / dist_cubed * y_diff;
+					forcex[i] -= mass[i]*mass[j] * G / dist_cubed * x_diff;
+					forcey[i] -= mass[i]*mass[j] * G / dist_cubed * y_diff;
 				}
 			}
+
 		}
 
 		//Compute position and velocity
 		for(int i = 0; i < loc_n; i++){
-			locposx[i] += (int) (timeSubStep * velx[i]) % 25;
-			locposy[i] += (int) (timeSubStep * vely[i]) % 25;
-			velx[i] += (int) (timeSubStep/mass[i] * forcex[i]) % 25;
-			vely[i] += (int) (timeSubStep/mass[i] * forcey[i]) % 25;
+			locposx[i] += timeSubStep * velx[i];
+			locposy[i] += timeSubStep * vely[i];
+			velx[i] += timeSubStep/mass[i] * forcex[i];
+			vely[i] += timeSubStep/mass[i] * forcey[i];
 		}
 
 		//All gather
@@ -133,6 +134,17 @@ int main(int argc, char* argv[]){
 	MPI_Barrier(MPI_COMM_WORLD);
 
 	free(image);
+	free(localvelx);
+	free(localvely);
+	free(localposx);
+	free(localposy);
+	free(forcex);
+	free(forcey);
+	free(mass);
+	free(velx);
+	free(vely);
+	free(x);
+	free(y);
 
 	MPI_Finalize();
 	return 0;

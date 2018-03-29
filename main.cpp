@@ -50,7 +50,7 @@ int main(int argc, char* argv[]){
 	int width = atoi(argv[7]);
 	int height = atoi(argv[8]);
 	unsigned char* image = NULL;
-
+	 
 
 	double G=0.00000000006673;
 
@@ -124,9 +124,14 @@ int main(int argc, char* argv[]){
 				}
 			}
 
+				
+			char integer_string[32];
+			char filename[64] = "IMAGE_";
+			sprintf(integer_string, "%d", steps);
+			strcat(filename, integer_string);
+			saveBMP(filename, image, width, height);
 			
-
-			saveBMP(argv[9], image, width, height);
+			
 		}	
 
 

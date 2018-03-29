@@ -120,20 +120,17 @@ int main(int argc, char* argv[]){
 
 		//Compute position and velocity
 		for(int i = 0; i <=loc_n; ++i){
-			locposx[i] += timeSubStep * localvelx[i];
-			locposy[i] += timeSubStep * localvely[i];
-			/// changed velx  to localvelx 
-			localvelx[i] += timeSubStep/mass[i] * forcex[i];
-			localvely[i] += timeSubStep/mass[i] * forcey[i];
-			//printf("PosX: %f PosY: %f VelX: %f VelY: %f \n ", locposx[i], locposy[i], localvelx[i], localvely[i]);
+			locposx[i] = timeSubStep * velx[i];
+			locposy[i] = timeSubStep * vely[i];
+			// shoudl this be += velocity does not compile over time 
+			velx[i] += timeSubStep/mass[i] * forcex[i];
+			vely[i] += timeSubStep/mass[i] * forcey[i];
+			printf("PosX: %f PosY: %f VelX: %f VelY: %f \n ", locposx[i], locposy[i], velx[i], vely[i]);
 		}
 
 		//All gather
 		MPI_Allgather(locposx, loc_n, MPI_DOUBLE, x, loc_n, MPI_DOUBLE, MPI_COMM_WORLD);
 		MPI_Allgather(locposy, loc_n, MPI_DOUBLE, y, loc_n, MPI_DOUBLE, MPI_COMM_WORLD);
-		// added these statements
-		MPI_Allgather(localvelx, loc_n, MPI_DOUBLE, velx, n/p, MPI_DOUBLE, MPI_COMM_WORLD);
-		MPI_Allgather(localvely, loc_n, MPI_DOUBLE, vely, n/p, MPI_DOUBLE, MPI_COMM_WORLD);
 	}
 	
 	MPI_Barrier(MPI_COMM_WORLD);

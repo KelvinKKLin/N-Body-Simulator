@@ -19,7 +19,6 @@ void printDoubleArray(double* array, int n){
 }
 
 void drawImage(int i, unsigned char* image, double* x, double* y, int width, int numParticleLight, int numParticleMedium, int numParticleHeavy){
-	if(i == 0) printArray(x);
 	if (i < numParticleLight){
 		image[((int)x[i] + width*(int)y[i])*3] =  0;
 		image[((int)x[i] + width*(int)y[i])*3+1] = 0;

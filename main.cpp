@@ -12,8 +12,8 @@
 
 #define epsilon 0.000000000000000222
 
-void printArray(double* array){
-	for(int i = 0; i < 3000; ++i){
+void printDoubleArray(double* array, int n){
+	for(int i = 0; i < n; ++i){
 		printf("%f\n", array[i]);
 	}
 }

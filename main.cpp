@@ -12,6 +12,29 @@
 
 #define epsilon 0.000000000000000222
 
+void printArray(double* array){
+	for(int i = 0; i < 3000; ++i){
+		printf("%f\n", array[i]);
+	}
+}
+
+void drawImage(int i, unsigned char* image, double* x, double* y, int width, int numParticleLight, int numParticleMedium, int numParticleHeavy){
+	if(i == 0) printArray(x);
+	if (i < numParticleLight){
+		image[((int)x[i] + width*(int)y[i])*3] =  0;
+		image[((int)x[i] + width*(int)y[i])*3+1] = 0;
+		image[((int)x[i] + width*(int)y[i])*3+2] = 255;
+	} else if (i >= numParticleLight && i < numParticleLight+numParticleMedium){
+		image[((int)x[i] + width*(int)y[i])*3] =  0;
+		image[((int)x[i] + width*(int)y[i])*3+1] = 255;
+		image[((int)x[i] + width*(int)y[i])*3+2] = 0;
+	} else{
+		image[((int)x[i] + width*(int)y[i])*3] =  255;
+		image[((int)x[i] + width*(int)y[i])*3+1] = 0;
+		image[((int)x[i] + width*(int)y[i])*3+2] = 0;
+	}
+}
+
 int main(int argc, char* argv[]){
 	
 	if( argc != 10){
@@ -45,8 +68,8 @@ int main(int argc, char* argv[]){
 	int subSteps = atoi(argv[5]);
 	double timeSubStep = atof(argv[6]);
 
-	//int width = atoi(argv[7]);
-	//int height = atoi(argv[8]);
+	int width = atoi(argv[7]);
+	int height = atoi(argv[8]);
 
 	double G=0.00000000006673;
 
@@ -94,13 +117,19 @@ int main(int argc, char* argv[]){
 	MPI_Bcast(y, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 	MPI_Scatter(velx, n/p, MPI_DOUBLE, localvelx, n/p, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 	MPI_Scatter(vely, n/p, MPI_DOUBLE, localvely, n/p, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+	image = (unsigned char *) calloc(sizeof(unsigned char)* 3 * width * height, sizeof(unsigned char));		
 
 	for(steps = 0; steps < numSteps; steps += timeSubStep){
 		if(steps % subSteps == 0 && my_rank == 0){
 			for(int i = 0; i <n; i++){
 				printf("SubStep TIMESTEP: %d PARTICLE %d POSX: %f, POSY: %f VELX: %f VELY: %f\n", steps, i, x[i], y[i], velx[i], vely[i]);
-				
+				drawImage(i, image, x, y, width, numParticleLight, numParticleMedium, numParticleHeavy);
 			}
+			char integer_string[32];
+			char filename[64] = "IMAGE_";
+			sprintf(integer_string, "%d", steps);
+			strcat(filename, integer_string);
+			saveBMP(filename, image, width, height);
 		}
 
 		//Compute the forces on each particle

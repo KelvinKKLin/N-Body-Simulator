@@ -66,24 +66,24 @@ int main(int argc, char* argv[]){
 			mass[i] = massLightMin + (drand48() * ((massLightMax - massLightMin)+1));
 			velx[i] = velocityLightMin + (drand48() * ((velocityLightMax - velocityLightMin)+1));
 			vely[i] = velocityLightMin + (drand48() * ((velocityLightMax - velocityLightMin)+1));
-			x[i] = (drand48() * ((width) + 1));
-			y[i] = (drand48() * ((height) + 1));
+			x[i] = (drand48() * ((width)));
+			y[i] = (drand48() * ((height) ));
 		}
 
 		for(int i = numParticleLight; i <=numParticleLight + numParticleMedium; ++i){
 			mass[i] = massMediumMin + (drand48() * ((massMediumMax - massMediumMin)+1));
 			velx[i] = velocityMediumMin + (drand48() * ((velocityMediumMax - velocityMediumMin)+1));
 			vely[i] = velocityMediumMin + (drand48() * ((velocityMediumMax - velocityMediumMin)+1));
-			x[i] = (drand48() * ((width) + 1));
-			y[i] = (drand48() * ((height) + 1));
+			x[i] = (drand48() * ((width)));
+			y[i] = (drand48() * ((height)));
 		}
 
 		for(int i = numParticleLight + numParticleMedium; i <=n; ++i){
 			mass[i] = massHeavyMin + (drand48() * ((massHeavyMax - massHeavyMin)+1));
 			velx[i] = velocityHeavyMin + (drand48() * ((velocityHeavyMax - velocityHeavyMin)+1));
 			vely[i] = velocityHeavyMin + (drand48() * ((velocityHeavyMax - velocityHeavyMin)+1));
-			x[i] = (drand48() * ((width) + 1));
-			y[i] = (drand48() * ((height) + 1));
+			x[i] = (drand48() * ((width)));
+			y[i] = (drand48() * ((height)));
 		}
 
 		//almost done, just save the image
@@ -104,7 +104,7 @@ int main(int argc, char* argv[]){
 	MPI_Bcast(y, n, MPI_DOUBLE, 0,  MPI_COMM_WORLD);
 	MPI_Scatter(velx, n/p, MPI_DOUBLE, localvelx, n/p, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 	MPI_Scatter(vely, n/p, MPI_DOUBLE, localvely, n/p, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-	image = (unsigned char *)calloc(sizeof(unsigned char)*3*width*height, sizeof(unsigned char));
+	//image = (unsigned char *)calloc(sizeof(unsigned char)*3*width*height, sizeof(unsigned char));
 	for(steps = 0; steps < numSteps; steps += timeSubStep){
 		if(steps % subSteps == 0 && my_rank == 0){
 			for(int i = 0; i <n; i++){
@@ -131,7 +131,8 @@ int main(int argc, char* argv[]){
 			strcat(filename, integer_string);
 			saveBMP(filename, image, width, height);
             for(int i = 0; i <n; i++){
-				printf("SubStep TIMESTEP: %d PARTICLE %d POSX: %f, POSY: %f VELX: %f VELY: %f\n", steps, i, x[i], y[i], velx[i], vely[i]);
+                //printf("TestOne \n"); 
+				//printf("SubStep TIMESTEP: %d PARTICLE %d POSX: %f, POSY: %f VELX: %f VELY: %f\n", steps, i, x[i], y[i], velx[i], vely[i]);
 					if (i < numParticleLight){
 		                image[((int)x[i] + width*(int)y[i])*3] =  0;
 		                image[((int)x[i] + width*(int)y[i])*3+1] = 0;
@@ -149,12 +150,16 @@ int main(int argc, char* argv[]){
 		}
 
 		//Compute the forces on each particle
-		for(int i = 0; i <loc_n; i++){
-			for(int j = 0; j <loc_n; j++){
+        //printf("Test Two \n"); 
+		for(int i = 0; i < n; i++){
+            //printf("TestThree \n"); 
+			for(int j = 0; j < n; j++){
+               // printf("TestFour \n"); 
 				if(i != j){
-					double x_diff = locposx[i] - locposx[j];
-					double y_diff = locposy[i] - locposy[j];
-					double dist = sqrt(x_diff * x_diff + y_diff + y_diff);
+                    //change this to x, y
+					double x_diff = x[i] - x[j];
+					double y_diff = y[i] - y[j];
+					double dist = sqrt(x_diff * x_diff + y_diff * y_diff);
 					double dist_cubed = dist* dist * dist;
 					forcex[i] -= mass[i]*mass[j] * G / dist_cubed * x_diff;
 					forcey[i] -= mass[i]*mass[j] * G / dist_cubed * y_diff;
@@ -164,7 +169,8 @@ int main(int argc, char* argv[]){
 		}
 
 		//Compute position and velocity
-		for(int i = 0; i <=loc_n; i++){
+		for(int i = 0; i <loc_n; i++){
+            //printf("TestFive \n");
 			locposx[i] += (timeSubStep * localvelx[i]);
 			locposy[i] += (timeSubStep * localvely[i]);
 			/// changed velx  to localvelx 

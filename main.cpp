@@ -50,6 +50,7 @@ int main(int argc, char* argv[]){
 
 	int steps = 0;
 	int numSteps = atoi(argv[4]);
+    numSteps = numSteps+1;
 	int subSteps = atoi(argv[5]);
 	double timeSubStep = atof(argv[6]);
 
@@ -104,9 +105,8 @@ int main(int argc, char* argv[]){
 	MPI_Bcast(y, n, MPI_DOUBLE, 0,  MPI_COMM_WORLD);
 	MPI_Scatter(velx, n/p, MPI_DOUBLE, localvelx, n/p, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 	MPI_Scatter(vely, n/p, MPI_DOUBLE, localvely, n/p, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-	//image = (unsigned char *)calloc(sizeof(unsigned char)*3*width*height, sizeof(unsigned char));
-	for(steps = 0; steps < numSteps; steps += timeSubStep){
-		if(steps % subSteps == 0 && my_rank == 0){
+	for(steps = 0; steps < numSteps*subSteps; steps++){
+		if(steps % subSteps == 0 && my_rank == 0 && steps!=0){
 			for(int i = 0; i <n; i++){
             x[i]=(int)x[i]%width;
             y[i]=(int)y[i]%height;
@@ -131,8 +131,6 @@ int main(int argc, char* argv[]){
 			strcat(filename, integer_string);
 			saveBMP(filename, image, width, height);
             for(int i = 0; i <n; i++){
-                //printf("TestOne \n"); 
-				//printf("SubStep TIMESTEP: %d PARTICLE %d POSX: %f, POSY: %f VELX: %f VELY: %f\n", steps, i, x[i], y[i], velx[i], vely[i]);
 					if (i < numParticleLight){
 		                image[((int)x[i] + width*(int)y[i])*3] =  0;
 		                image[((int)x[i] + width*(int)y[i])*3+1] = 0;
@@ -150,13 +148,9 @@ int main(int argc, char* argv[]){
 		}
 
 		//Compute the forces on each particle
-        //printf("Test Two \n"); 
 		for(int i = 0; i < n; i++){
-            //printf("TestThree \n"); 
 			for(int j = 0; j < n; j++){
-               // printf("TestFour \n"); 
 				if(i != j){
-                    //change this to x, y
 					double x_diff = x[i] - x[j];
 					double y_diff = y[i] - y[j];
 					double dist = sqrt(x_diff * x_diff + y_diff * y_diff);
@@ -170,14 +164,10 @@ int main(int argc, char* argv[]){
 
 		//Compute position and velocity
 		for(int i = 0; i <loc_n; i++){
-            //printf("TestFive \n");
-			locposx[i] += (timeSubStep * localvelx[i]);
-			locposy[i] += (timeSubStep * localvely[i]);
-			/// changed velx  to localvelx 
-			localvelx[i] += timeSubStep/mass[i] * forcex[i];
-			localvely[i] += timeSubStep/mass[i] * forcey[i];
-			//printf("PosX: %f PosY: %f VelX: %f VelY: %f \n ", locposx[i], locposy[i], localvelx[i], localvely[i]);
-			//printf("Working: %d PARTICLE %d POSX: %f, POSY: %f VELX: %f VELY: %f\n", steps, i, locposx[i], locposy[i], localvelx[i], localvely[i]);
+			locposx[i] += (timeSubStep*(steps+1) * localvelx[i]);
+			locposy[i] += (timeSubStep*(steps+1) * localvely[i]);
+			localvelx[i] += timeSubStep*(steps+1)/mass[i] * forcex[i];
+			localvely[i] += timeSubStep*(steps+1)/mass[i] * forcey[i];
 		}
 
 		//All gather

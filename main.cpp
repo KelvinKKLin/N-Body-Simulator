@@ -143,33 +143,10 @@ int main(int argc, char* argv[]){
 			}
 		}
 
-		//Compute the forces on each particle
-		for(int i = 0; i < n; i++){
-			forcex[i] = 0;
-			forcey[i] = 0;
-			for(int j = 0; j < n; j++){
-				if(i != j){
-					double x_diff = x[i] - x[j];
-					double y_diff = y[i] - y[j];
-					double dist = sqrt(x_diff * x_diff + y_diff * y_diff);
-					double dist_cubed = dist* dist * dist;
-					forcex[i] -= mass[i]*mass[j] * G / dist_cubed * x_diff;
-					forcey[i] -= mass[i]*mass[j] * G / dist_cubed * y_diff;
-				}
-			}
+		//TODO: Add code to compute the forces on each particle
+		
 
-		}
-
-		//Compute position and velocity
-		for(int i = 0; i < loc_n; i++){
-			locposx[i] += (timeSubStep * localvelx[i]);
-			locposy[i] += (timeSubStep * localvely[i]);
-			localvelx[i] += timeSubStep/mass[i] * forcex[i];
-			localvely[i] += timeSubStep/mass[i] * forcey[i];
-		}
-
-		//MPI_Barrier(MPI_COMM_WORLD);
-
+		//END TODO
 		//All gather
 		MPI_Barrier(MPI_COMM_WORLD);
 		MPI_Allgather(locposx, loc_n, MPI_DOUBLE, x, loc_n, MPI_DOUBLE, MPI_COMM_WORLD);

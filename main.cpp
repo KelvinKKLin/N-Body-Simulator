@@ -96,12 +96,8 @@ int main(int argc, char* argv[]){
 	MPI_Scatter(vely, n/p, MPI_DOUBLE, localvely, n/p, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
 	for(steps = 0; steps < numSteps*subSteps; steps++){
-		if(steps % subSteps == 0 && my_rank == 0 && steps!=0){
+		if(steps % subSteps == 0 && my_rank == 0){
 			for(int i = 0; i <n; i++){
-
-	            x[i]=(int)x[i]%width;
-	            y[i]=(int)y[i]%height;
-
 				printf("SubStep TIMESTEP: %d PARTICLE %d POSX: %f, POSY: %f VELX: %f VELY: %f\n", steps, i, x[i], y[i], velx[i], vely[i]);
 
 				//image array 
@@ -146,10 +142,11 @@ int main(int argc, char* argv[]){
 
 			}
 		}
-	//}
 
 		//Compute the forces on each particle
 		for(int i = 0; i < n; i++){
+			forcex[i] = 0;
+			forcey[i] = 0;
 			for(int j = 0; j < n; j++){
 				if(i != j){
 					double x_diff = x[i] - x[j];
@@ -165,20 +162,20 @@ int main(int argc, char* argv[]){
 
 		//Compute position and velocity
 		for(int i = 0; i < loc_n; i++){
-			locposx[i] += (int)(timeSubStep*(steps+1) * localvelx[i]) % width;
-			locposy[i] += (int)(timeSubStep*(steps+1) * localvely[i]) % height;
-			localvelx[i] += timeSubStep*(steps+1)/mass[i] * forcex[i];
-			localvely[i] += timeSubStep*(steps+1)/mass[i] * forcey[i];
+			locposx[i] += (timeSubStep * localvelx[i]);
+			locposy[i] += (timeSubStep * localvely[i]);
+			localvelx[i] += timeSubStep/mass[i] * forcex[i];
+			localvely[i] += timeSubStep/mass[i] * forcey[i];
 		}
 
-		//All gather
-		MPI_Allgather(locposx, loc_n, MPI_DOUBLE, x, n/p, MPI_DOUBLE, MPI_COMM_WORLD);
-		MPI_Allgather(locposy, loc_n, MPI_DOUBLE, y, n/p, MPI_DOUBLE, MPI_COMM_WORLD);
-		// added these statements
-		MPI_Allgather(localvelx, loc_n, MPI_DOUBLE, velx, n/p, MPI_DOUBLE, MPI_COMM_WORLD);
-		MPI_Allgather(localvely, loc_n, MPI_DOUBLE, vely, n/p, MPI_DOUBLE, MPI_COMM_WORLD);
-		MPI_Barrier(MPI_COMM_WORLD);
+		//MPI_Barrier(MPI_COMM_WORLD);
 
+		//All gather
+		MPI_Barrier(MPI_COMM_WORLD);
+		MPI_Allgather(locposx, loc_n, MPI_DOUBLE, x, loc_n, MPI_DOUBLE, MPI_COMM_WORLD);
+		MPI_Allgather(locposy, loc_n, MPI_DOUBLE, y, loc_n, MPI_DOUBLE, MPI_COMM_WORLD);
+		MPI_Allgather(localvelx, loc_n, MPI_DOUBLE, velx, loc_n, MPI_DOUBLE, MPI_COMM_WORLD);
+		MPI_Allgather(localvely, loc_n, MPI_DOUBLE, vely, loc_n, MPI_DOUBLE, MPI_COMM_WORLD);
 	}
 	
 	MPI_Barrier(MPI_COMM_WORLD);

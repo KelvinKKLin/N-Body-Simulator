@@ -143,8 +143,10 @@ int main(int argc, char* argv[]){
 	                image[((int)x[i] + width*(int)y[i])*3+1] = 0;
 	                image[((int)x[i] + width*(int)y[i])*3+2] = 0;
                 }
+
 			}
 		}
+	//}
 
 		//Compute the forces on each particle
 		for(int i = 0; i < n; i++){
@@ -163,8 +165,8 @@ int main(int argc, char* argv[]){
 
 		//Compute position and velocity
 		for(int i = 0; i < loc_n; i++){
-			locposx[i] += (timeSubStep*(steps+1) * localvelx[i]);
-			locposy[i] += (timeSubStep*(steps+1) * localvely[i]);
+			locposx[i] += (int)(timeSubStep*(steps+1) * localvelx[i]) % width;
+			locposy[i] += (int)(timeSubStep*(steps+1) * localvely[i]) % height;
 			localvelx[i] += timeSubStep*(steps+1)/mass[i] * forcex[i];
 			localvely[i] += timeSubStep*(steps+1)/mass[i] * forcey[i];
 		}
@@ -175,6 +177,8 @@ int main(int argc, char* argv[]){
 		// added these statements
 		MPI_Allgather(localvelx, loc_n, MPI_DOUBLE, velx, n/p, MPI_DOUBLE, MPI_COMM_WORLD);
 		MPI_Allgather(localvely, loc_n, MPI_DOUBLE, vely, n/p, MPI_DOUBLE, MPI_COMM_WORLD);
+		MPI_Barrier(MPI_COMM_WORLD);
+
 	}
 	
 	MPI_Barrier(MPI_COMM_WORLD);

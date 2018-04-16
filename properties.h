@@ -15,14 +15,14 @@ double velocityHeavyMin = 1;
 double velocityHeavyMax = 5;
 
 //mass
-double massLightMin  = 3000000000;
-double massLightMax  = 5999999999;
+double massLightMin  = 300000000000000000;
+double massLightMax  = 599999999999999999;
 
-double massMediumMin = 6000000000;
-double massMediumMax = 9999999999;
+double massMediumMin = 600000000000000000;
+double massMediumMax = 999999999999999999;
 
-double massHeavyMin  = 10000000000;
-double massHeavyMax  = 13999999999;
+double massHeavyMin  = 100000000000000000;
+double massHeavyMax  = 139999999999999999;
 
 
 //colours

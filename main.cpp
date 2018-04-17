@@ -104,7 +104,7 @@ int main(int argc, char* argv[]){
 	for(steps = 0; steps < numSteps*subSteps; steps++){
 		if(steps % subSteps == 0 && my_rank == 0){
 			for(int i = 0; i <n; i++){
-				//printf("SubStep TIMESTEP: %d PARTICLE %d POSX: %f, POSY: %f VELX: %f VELY: %f\n", steps, i, x[i], y[i], velx[i], vely[i]);
+				printf("SubStep TIMESTEP: %d PARTICLE %d POSX: %f, POSY: %f VELX: %f VELY: %f FORCEX: %f FORCEY: %f\n", steps, i, x[i], y[i], velx[i], vely[i], forcex[i], forcey[i]);
 
 				//image array 
 				if (i < numParticleLight){
@@ -151,8 +151,6 @@ int main(int argc, char* argv[]){
 
 		//Compute the forces on each particle
 		for(int i = 0; i < n; i++){
-			forcex[i] = 0;
-			forcey[i] = 0;
 			for(int j = 0; j < n; j++){
 				if(i != j){
 					double x_diff = x[i] - x[j];
@@ -170,12 +168,10 @@ int main(int argc, char* argv[]){
 		for(int i = 0; i < loc_n; i++){
 			locposx[i] += (timeSubStep * velx[i]);
 			locposy[i] += (timeSubStep * vely[i]);
+			locposx[i] = (int) locposx[i] % width;
+			locposy[i] = (int) locposy[i] % height;
 			localvelx[i] = timeSubStep/mass[i] * forcex[i];
 			localvely[i] = timeSubStep/mass[i] * forcey[i];
-			//if(localvelx[i]<0 ||localvely[i]<0 || localvelx[i]>1000||localvely[i]>1000){
-			    localvelx[i]=10;
-			    localvely[i]=10;
-			//}
 		}
 
 		//MPI_Barrier(MPI_COMM_WORLD);
@@ -186,6 +182,8 @@ int main(int argc, char* argv[]){
 		MPI_Allgather(locposy, loc_n, MPI_DOUBLE, y, loc_n, MPI_DOUBLE, MPI_COMM_WORLD);
 		MPI_Allgather(localvelx, loc_n, MPI_DOUBLE, velx, loc_n, MPI_DOUBLE, MPI_COMM_WORLD);
 		MPI_Allgather(localvely, loc_n, MPI_DOUBLE, vely, loc_n, MPI_DOUBLE, MPI_COMM_WORLD);
+		MPI_Allgather(forcex, loc_n, MPI_DOUBLE, forcex, loc_n, MPI_DOUBLE, MPI_COMM_WORLD);
+		MPI_Allgather(forcey, loc_n, MPI_DOUBLE, forcey, loc_n, MPI_DOUBLE, MPI_COMM_WORLD);
 	}
 	
 	MPI_Barrier(MPI_COMM_WORLD);

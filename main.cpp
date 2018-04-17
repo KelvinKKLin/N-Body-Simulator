@@ -131,7 +131,7 @@ int main(int argc, char* argv[]){
 			char integer_string[32];
 			char filename[64];
 			sprintf(integer_string, "%d", steps);
-			sprintf(filename, argv[9]);
+			sprintf(filename, "&s", argv[9]);
 			strcat(filename, integer_string);
 			saveBMP(filename, image, width, height);
 

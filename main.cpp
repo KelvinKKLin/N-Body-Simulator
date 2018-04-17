@@ -128,7 +128,7 @@ int main(int argc, char* argv[]){
 			sprintf(integer_string, "%d", steps);
 			sprintf(filename, argv[9]);
 			strcat(filename, integer_string);
-			saveBMP(filename, image, width, height);
+			//saveBMP(filename, image, width, height);
 
 			//assigning pixels to black again
             for(int i = 0; i <n; i++){
@@ -151,14 +151,17 @@ int main(int argc, char* argv[]){
 
 		//Compute the forces on each particle
 		for(int i = 0; i < n; i++){
+			forcex[i] = 0;
+			forcey[i] = 0;
 			for(int j = 0; j < n; j++){
 				if(i != j){
-					double x_diff = x[i] - x[j];
-					double y_diff = y[i] - y[j];
-					double dist = sqrt(x_diff * x_diff + y_diff * y_diff);
-					double dist_cubed = dist* dist * dist;
-					forcex[i] -= mass[i]*mass[j] * G / dist_cubed * x_diff;
-					forcey[i] -= mass[i]*mass[j] * G / dist_cubed * y_diff;
+					double EPS =3e4;
+					double x_diff = x[j] - x[i];
+					double y_diff = y[j] - y[i];
+					double dist = sqrt(x_diff*x_diff + y_diff*y_diff);
+					double force = (G * mass[i] * mass[j]) / (1e40 * dist*dist + EPS*EPS);
+					forcex[i] += force * x_diff / dist;
+					forcey[i] += force * y_diff / dist;
 				}
 			}
 
@@ -166,12 +169,16 @@ int main(int argc, char* argv[]){
 
 		//Compute position and velocity
 		for(int i = 0; i < loc_n; i++){
-			locposx[i] += (timeSubStep * velx[i]);
-			locposy[i] += (timeSubStep * vely[i]);
-			locposx[i] = (int) locposx[i] % width;
-			locposy[i] = (int) locposy[i] % height;
-			localvelx[i] = timeSubStep/mass[i] * forcex[i];
-			localvely[i] = timeSubStep/mass[i] * forcey[i];
+			localvelx[i] = velx[i] + timeSubStep * forcex[i] / mass[i];
+			localvely[i] = vely[i] + timeSubStep * forcey[i] / mass[i];
+			
+			locposx[i] = x[i] + timeSubStep * localvelx[i];
+			locposy[i] = y[i] + timeSubStep * localvely[i];
+
+			//TODO: Implement intelligent warp
+			
+			
+			
 		}
 
 		//MPI_Barrier(MPI_COMM_WORLD);
@@ -182,8 +189,6 @@ int main(int argc, char* argv[]){
 		MPI_Allgather(locposy, loc_n, MPI_DOUBLE, y, loc_n, MPI_DOUBLE, MPI_COMM_WORLD);
 		MPI_Allgather(localvelx, loc_n, MPI_DOUBLE, velx, loc_n, MPI_DOUBLE, MPI_COMM_WORLD);
 		MPI_Allgather(localvely, loc_n, MPI_DOUBLE, vely, loc_n, MPI_DOUBLE, MPI_COMM_WORLD);
-		MPI_Allgather(forcex, loc_n, MPI_DOUBLE, forcex, loc_n, MPI_DOUBLE, MPI_COMM_WORLD);
-		MPI_Allgather(forcey, loc_n, MPI_DOUBLE, forcey, loc_n, MPI_DOUBLE, MPI_COMM_WORLD);
 	}
 	
 	MPI_Barrier(MPI_COMM_WORLD);
@@ -193,6 +198,7 @@ int main(int argc, char* argv[]){
            timeFinal = timeTwo-timeOne;
 	   printf("%lf \n", timeFinal);
 	}
+
 	free(image);
 	free(localvelx);
 	free(localvely);

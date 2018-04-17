@@ -8,6 +8,8 @@
 #include "properties.h"
 #define epsilon 0.000000000000000222
 
+using namespace std;
+
 void printDoubleArray(double* array, int n){
 	for(int i = 0; i < n; ++i){
 		printf("%f\n", array[i]);
@@ -33,11 +35,11 @@ int main(int argc, char* argv[]){
 	int n = numParticleLight + numParticleMedium + numParticleHeavy;
 	double timeOne, timeTwo, timeFinal;
 	
-	double* forcex = (double*) calloc(sizeof(double) * n, sizeof(double));
-	double* forcey = (double*) calloc(sizeof(double) * n, sizeof(double));
-	double* mass = (double*) calloc(sizeof(double) * n, sizeof(double));
-	double* velx = (double*) calloc(sizeof(double) * n, sizeof(double));
-	double* vely = (double*) calloc(sizeof(double) * n, sizeof(double));
+	long double* forcex = (long double*) calloc(sizeof(long double) * n, sizeof(long double));
+	long double* forcey = (long double*) calloc(sizeof(long double) * n, sizeof(long double));
+	long double* mass = (long double*) calloc(sizeof(long double) * n, sizeof(long double));
+	long double* velx = (long double*) calloc(sizeof(long double) * n, sizeof(long double));
+	long double* vely = (long double*) calloc(sizeof(long double) * n, sizeof(long double));
 	double* x 	 = (double*) calloc(sizeof(double) * n, sizeof(double));
 	double* y	 = (double*) calloc(sizeof(double) * n, sizeof(double));
 
@@ -56,7 +58,7 @@ int main(int argc, char* argv[]){
 	//root node stuff goes here
 	if(my_rank == 0){
 		for(int i = 0; i <=numParticleLight; ++i){
-			mass[i] = massLightMin + (drand48() * ((massLightMax - massLightMin)+1));
+			mass[i] = 1e25;//massLightMin + (drand48() * ((massLightMax - massLightMin)+1));
 			velx[i] = velocityLightMin + (drand48() * ((velocityLightMax - velocityLightMin)+1));
 			vely[i] = velocityLightMin + (drand48() * ((velocityLightMax - velocityLightMin)+1));
 			x[i] = drand48() * width;
@@ -64,7 +66,7 @@ int main(int argc, char* argv[]){
 		}
 
 		for(int i = numParticleLight; i <=numParticleLight + numParticleMedium; ++i){
-			mass[i] = massMediumMin + (drand48() * ((massMediumMax - massMediumMin)+1));
+			mass[i] = 1e30;//massMediumMin + (drand48() * ((massMediumMax - massMediumMin)+1));
 			velx[i] = velocityMediumMin + (drand48() * ((velocityMediumMax - velocityMediumMin)+1));
 			vely[i] = velocityMediumMin + (drand48() * ((velocityMediumMax - velocityMediumMin)+1));
 			x[i] = drand48() * width;
@@ -72,7 +74,7 @@ int main(int argc, char* argv[]){
 		}
 
 		for(int i = numParticleLight + numParticleMedium; i <=n; ++i){
-			mass[i] = massHeavyMin + (drand48() * ((massHeavyMax - massHeavyMin)+1));
+			mass[i] = 1e35;//massHeavyMin + (drand48() * ((massHeavyMax - massHeavyMin)+1));
 			velx[i] = velocityHeavyMin + (drand48() * ((velocityHeavyMax - velocityHeavyMin)+1));
 			vely[i] = velocityHeavyMin + (drand48() * ((velocityHeavyMax - velocityHeavyMin)+1));
 			x[i] = drand48() * width;
@@ -81,8 +83,8 @@ int main(int argc, char* argv[]){
 
 	}
 
-	double* localvelx = (double*) calloc(sizeof(double) * n/p, sizeof(double));
-	double* localvely = (double*) calloc(sizeof(double) * n/p, sizeof(double));
+	long double* localvelx = (long double*) calloc(sizeof(long double) * n/p, sizeof(long double));
+	long double* localvely = (long double*) calloc(sizeof(long double) * n/p, sizeof(long double));
 	double* locposx   = (double*) calloc(sizeof(double) * n/p, sizeof(double));
 	double* locposy   = (double*) calloc(sizeof(double) * n/p, sizeof(double));
 
@@ -93,29 +95,32 @@ int main(int argc, char* argv[]){
 	if(my_rank==0){
 		timeOne = MPI_Wtime();
 	}
-	MPI_Bcast(mass, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+	MPI_Bcast(mass, n, MPI_LONG_DOUBLE, 0, MPI_COMM_WORLD);
 	MPI_Bcast(x, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 	MPI_Bcast(y, n, MPI_DOUBLE, 0,  MPI_COMM_WORLD);
-	MPI_Bcast(velx, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-	MPI_Bcast(vely, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+	MPI_Bcast(velx, n, MPI_LONG_DOUBLE, 0, MPI_COMM_WORLD);
+	MPI_Bcast(vely, n, MPI_LONG_DOUBLE, 0, MPI_COMM_WORLD);
 	//MPI_Scatter(velx, n/p, MPI_DOUBLE, localvelx, n/p, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 	//MPI_Scatter(vely, n/p, MPI_DOUBLE, localvely, n/p, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
 	for(steps = 0; steps < numSteps*subSteps; steps++){
 		if(steps % subSteps == 0 && my_rank == 0){
 			for(int i = 0; i <n; i++){
-				printf("SubStep TIMESTEP: %d PARTICLE %d POSX: %f, POSY: %f VELX: %f VELY: %f FORCEX: %f FORCEY: %f\n", steps, i, x[i], y[i], velx[i], vely[i], forcex[i], forcey[i]);
-
+				//printf("SubStep TIMESTEP: %d PARTICLE %d POSX: %f, POSY: %f VELX: %f VELY: %f FORCEX: %f FORCEY: %f\n", steps, i, x[i], y[i], velx[i], vely[i], forcex[i], forcey[i]);
+				//cout << "Substep Timestep "<< steps << " Particle " << i << " Pos X " << x[i] << " Pos Y " << y[i] << " VelX " << velx[i] << " VelY " << vely[i] << " ForceX " << forcex[i] << " ForceY " << forcey[i] << endl;
 				//image array 
 				if (i < numParticleLight){
+					printf("SMALL HIT %d\n", ((int)x[i] + width*(int)y[i]));
 	                image[((int)x[i] + width*(int)y[i])*3] =  0;
 	                image[((int)x[i] + width*(int)y[i])*3+1] = 0;
 	                image[((int)x[i] + width*(int)y[i])*3+2] = 255;
                 } else if (i >= numParticleLight && i < numParticleLight+numParticleMedium){
+                	printf("MEDIUM HIT %d\n", ((int)x[i] + width*(int)y[i]));
 	                image[((int)x[i] + width*(int)y[i])*3] =  0;
 	                image[((int)x[i] + width*(int)y[i])*3+1] = 255;
 	                image[((int)x[i] + width*(int)y[i])*3+2] = 0;
-                } else{
+                } else if(i > numParticleLight + numParticleMedium){
+                	printf("LARGE HIT %d\n", ((int)x[i] + width*(int)y[i]));
 	                image[((int)x[i] + width*(int)y[i])*3] =  255;
 	                image[((int)x[i] + width*(int)y[i])*3+1] = 0;
 	                image[((int)x[i] + width*(int)y[i])*3+2] = 0;
@@ -128,7 +133,7 @@ int main(int argc, char* argv[]){
 			sprintf(integer_string, "%d", steps);
 			sprintf(filename, argv[9]);
 			strcat(filename, integer_string);
-			//saveBMP(filename, image, width, height);
+			saveBMP(filename, image, width, height);
 
 			//assigning pixels to black again
             for(int i = 0; i <n; i++){
@@ -156,12 +161,21 @@ int main(int argc, char* argv[]){
 			for(int j = 0; j < n; j++){
 				if(i != j){
 					double EPS =3e4;
-					double x_diff = x[j] - x[i];
-					double y_diff = y[j] - y[i];
-					double dist = sqrt(x_diff*x_diff + y_diff*y_diff);
-					double force = (G * mass[i] * mass[j]) / (1e40 * dist*dist + EPS*EPS);
+					long double x_diff = 1e9*(x[j] - x[i]);
+					long double y_diff = 1e9*(y[j] - y[i]);
+					long double dist = sqrt(x_diff*x_diff + y_diff*y_diff);
+					long double force = (G * mass[i] * mass[j]) / (dist*dist + EPS*EPS);
 					forcex[i] += force * x_diff / dist;
 					forcey[i] += force * y_diff / dist;
+
+					//These guards may be removed when warping is complete.
+					if(isnan(forcex[i])){
+						forcex[i] = 0;
+					}
+					if(isnan(forcey[i])){
+						forcey[i] = 0;
+					}
+
 				}
 			}
 
@@ -171,13 +185,39 @@ int main(int argc, char* argv[]){
 		for(int i = 0; i < loc_n; i++){
 			localvelx[i] = velx[i] + timeSubStep * forcex[i] / mass[i];
 			localvely[i] = vely[i] + timeSubStep * forcey[i] / mass[i];
-			
-			locposx[i] = x[i] + timeSubStep * localvelx[i];
-			locposy[i] = y[i] + timeSubStep * localvely[i];
+
+			if(isnan(localvelx[i])){
+				localvelx[i] = 0;
+			}
+			if(isnan(localvely[i])){
+				localvely[i] = 0;
+			}
 
 			//TODO: Implement intelligent warp
+			double distXToTravel = x[i] + timeSubStep * localvelx[i];
+			double distYToTravel = y[i] + timeSubStep * localvely[i];
+
+			if(distXToTravel < 0){
+				distXToTravel = width - ((int)(distXToTravel - x[i]) % width);
+			} else if(distXToTravel > width){
+				distXToTravel = ((int)(distXToTravel + width - x[i]) % width);
+			}
+
+			if(distYToTravel < 0){
+				distYToTravel = height - ((int)(distYToTravel - y[i]) % height);
+			} else if(distYToTravel > height){
+				distYToTravel = ((int)(distYToTravel + height - y[i]) % height);
+			}
+
+			if(distYToTravel < 0){
+				distYToTravel *= -1;
+			}
+			if(distXToTravel < 0){
+				distXToTravel *= -1;
+			}
 			
-			
+			locposx[i] = (int) distXToTravel % width;
+			locposy[i] = (int) distYToTravel % height;
 			
 		}
 
@@ -187,8 +227,8 @@ int main(int argc, char* argv[]){
 		MPI_Barrier(MPI_COMM_WORLD);
 		MPI_Allgather(locposx, loc_n, MPI_DOUBLE, x, loc_n, MPI_DOUBLE, MPI_COMM_WORLD);
 		MPI_Allgather(locposy, loc_n, MPI_DOUBLE, y, loc_n, MPI_DOUBLE, MPI_COMM_WORLD);
-		MPI_Allgather(localvelx, loc_n, MPI_DOUBLE, velx, loc_n, MPI_DOUBLE, MPI_COMM_WORLD);
-		MPI_Allgather(localvely, loc_n, MPI_DOUBLE, vely, loc_n, MPI_DOUBLE, MPI_COMM_WORLD);
+		MPI_Allgather(localvelx, loc_n, MPI_LONG_DOUBLE, velx, loc_n, MPI_LONG_DOUBLE, MPI_COMM_WORLD);
+		MPI_Allgather(localvely, loc_n, MPI_LONG_DOUBLE, vely, loc_n, MPI_LONG_DOUBLE, MPI_COMM_WORLD);
 	}
 	
 	MPI_Barrier(MPI_COMM_WORLD);

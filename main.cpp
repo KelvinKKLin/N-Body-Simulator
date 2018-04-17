@@ -168,8 +168,8 @@ int main(int argc, char* argv[]){
 
 		//Compute position and velocity
 		for(int i = 0; i < loc_n; i++){
-			locposx[i] = (timeSubStep * velx[i]) + x[i];
-			locposy[i] = (timeSubStep * vely[i]) + y[i];
+			locposx[i] = (timeSubStep * velx[i]) +x[i];
+			locposy[i] = (timeSubStep * vely[i])+ y[i];
 			localvelx[i] = timeSubStep/mass[i] * forcex[i];
 			localvely[i] = timeSubStep/mass[i] * forcey[i];
 			//if(localvelx[i]<0 ||localvely[i]<0 || localvelx[i]>1000||localvely[i]>1000){

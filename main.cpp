@@ -116,6 +116,7 @@ int main(int argc, char* argv[]){
 	                image[((int)x[i] + width*(int)y[i])*3+1] = 255;
 	                image[((int)x[i] + width*(int)y[i])*3+2] = 0;
                 } else{
+			printf("testing");
 	                image[((int)x[i] + width*(int)y[i])*3] =  255;
 	                image[((int)x[i] + width*(int)y[i])*3+1] = 0;
 	                image[((int)x[i] + width*(int)y[i])*3+2] = 0;
@@ -168,8 +169,8 @@ int main(int argc, char* argv[]){
 
 		//Compute position and velocity
 		for(int i = 0; i < loc_n; i++){
-			locposx[i] += (timeSubStep * velx[i]);
-			locposy[i] += (timeSubStep * vely[i]);
+			locposx[i] = (timeSubStep * velx[i]) + x[i];
+			locposy[i] = (timeSubStep * vely[i]) + y[i];
 			localvelx[i] = timeSubStep/mass[i] * forcex[i];
 			localvely[i] = timeSubStep/mass[i] * forcey[i];
 			//if(localvelx[i]<0 ||localvely[i]<0 || localvelx[i]>1000||localvely[i]>1000){

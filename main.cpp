@@ -58,7 +58,7 @@ int main(int argc, char* argv[]){
 	//root node stuff goes here
 	if(my_rank == 0){
 		for(int i = 0; i <=numParticleLight; ++i){
-			mass[i] = 1e25;//massLightMin + (drand48() * ((massLightMax - massLightMin)+1));
+			mass[i] = massLightMin + (drand48() * ((massLightMax - massLightMin)+1));
 			velx[i] = velocityLightMin + (drand48() * ((velocityLightMax - velocityLightMin)+1));
 			vely[i] = velocityLightMin + (drand48() * ((velocityLightMax - velocityLightMin)+1));
 			x[i] = drand48() * width;
@@ -66,7 +66,7 @@ int main(int argc, char* argv[]){
 		}
 
 		for(int i = numParticleLight; i <=numParticleLight + numParticleMedium; ++i){
-			mass[i] = 1e30;//massMediumMin + (drand48() * ((massMediumMax - massMediumMin)+1));
+			mass[i] = massMediumMin + (drand48() * ((massMediumMax - massMediumMin)+1));
 			velx[i] = velocityMediumMin + (drand48() * ((velocityMediumMax - velocityMediumMin)+1));
 			vely[i] = velocityMediumMin + (drand48() * ((velocityMediumMax - velocityMediumMin)+1));
 			x[i] = drand48() * width;
@@ -74,7 +74,7 @@ int main(int argc, char* argv[]){
 		}
 
 		for(int i = numParticleLight + numParticleMedium; i <=n; ++i){
-			mass[i] = 1e35;//massHeavyMin + (drand48() * ((massHeavyMax - massHeavyMin)+1));
+			mass[i] = massHeavyMin + (drand48() * ((massHeavyMax - massHeavyMin)+1));
 			velx[i] = velocityHeavyMin + (drand48() * ((velocityHeavyMax - velocityHeavyMin)+1));
 			vely[i] = velocityHeavyMin + (drand48() * ((velocityHeavyMax - velocityHeavyMin)+1));
 			x[i] = drand48() * width;

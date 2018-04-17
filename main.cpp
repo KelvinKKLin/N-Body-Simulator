@@ -104,7 +104,7 @@ int main(int argc, char* argv[]){
 	for(steps = 0; steps < numSteps*subSteps; steps++){
 		if(steps % subSteps == 0 && my_rank == 0){
 			for(int i = 0; i <n; i++){
-				printf("SubStep TIMESTEP: %d PARTICLE %d POSX: %f, POSY: %f VELX: %f VELY: %f\n", steps, i, x[i], y[i], velx[i], vely[i]);
+				//printf("SubStep TIMESTEP: %d PARTICLE %d POSX: %f, POSY: %f VELX: %f VELY: %f\n", steps, i, x[i], y[i], velx[i], vely[i]);
 
 				//image array 
 				if (i < numParticleLight){
@@ -116,7 +116,6 @@ int main(int argc, char* argv[]){
 	                image[((int)x[i] + width*(int)y[i])*3+1] = 255;
 	                image[((int)x[i] + width*(int)y[i])*3+2] = 0;
                 } else{
-			printf("testing");
 	                image[((int)x[i] + width*(int)y[i])*3] =  255;
 	                image[((int)x[i] + width*(int)y[i])*3+1] = 0;
 	                image[((int)x[i] + width*(int)y[i])*3+2] = 0;
@@ -169,8 +168,8 @@ int main(int argc, char* argv[]){
 
 		//Compute position and velocity
 		for(int i = 0; i < loc_n; i++){
-			locposx[i] = (timeSubStep * velx[i]) + x[i];
-			locposy[i] = (timeSubStep * vely[i]) + y[i];
+			locposx[i] += (timeSubStep * velx[i]);
+			locposy[i] += (timeSubStep * vely[i]);
 			localvelx[i] = timeSubStep/mass[i] * forcex[i];
 			localvely[i] = timeSubStep/mass[i] * forcey[i];
 			//if(localvelx[i]<0 ||localvely[i]<0 || localvelx[i]>1000||localvely[i]>1000){

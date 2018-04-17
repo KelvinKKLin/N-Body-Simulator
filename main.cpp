@@ -96,11 +96,13 @@ int main(int argc, char* argv[]){
 	MPI_Bcast(velx, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 	MPI_Bcast(vely, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
+	int ultimate_counter = 0;
+
 	for(steps = 0; steps < numSteps*subSteps; steps++){
 		if(steps % subSteps == 0 && my_rank == 0){
 			for(int i = 0; i <n; i++){
 				//printf("SubStep TIMESTEP: %d PARTICLE %d POSX: %f, POSY: %f VELX: %f VELY: %f FORCEX: %f FORCEY: %f\n", steps, i, x[i], y[i], velx[i], vely[i], forcex[i], forcey[i]);
-				cout << "Substep Timestep "<< steps << " Particle " << i << " Pos X " << x[i] << " Pos Y " << y[i] << " VelX " << velx[i] << " VelY " << vely[i] << " ForceX " << forcex[i] << " ForceY " << forcey[i] << endl;
+				//cout << "Substep Timestep "<< steps << " Particle " << i << " Pos X " << x[i] << " Pos Y " << y[i] << " VelX " << velx[i] << " VelY " << vely[i] << " ForceX " << forcex[i] << " ForceY " << forcey[i] << endl;
 				
 				//image array 
 				if (i < numParticleLight){
@@ -136,9 +138,10 @@ int main(int argc, char* argv[]){
 			char integer_string[32];
 			char filename[64];
 			sprintf(integer_string, "%d", steps);
-			sprintf(filename, "&s", argv[9]);
+			sprintf(filename, argv[9]);
 			strcat(filename, integer_string);
 			saveBMP(filename, image, width, height);
+			printf("Saving picture #%d\n", ultimate_counter++);
 
 			//assigning pixels to black again
             for(int i = 0; i <n; i++){

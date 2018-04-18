@@ -3,9 +3,11 @@
 #include <string.h>
 #include <mpi.h>
 #include <math.h>
+#include <omp.h>
 #include "vector3d.h"
 #include "savebmp.h"
 #include "properties.h"
+
 #define epsilon 0.000000000000000222
 
 using namespace std;
@@ -16,7 +18,7 @@ int main(int argc, char* argv[]){
 		printf("Usage: %s numParticlesLight numParticleMedium numParticleHeavy numSteps subSteps timeSubStep imageWidth imageHeight imageFilenamePrefix\n", argv[0]);
 		return -1;
 	}
-
+	omp_set_num_threads(4);
 	MPI_Init(&argc,&argv);
 	int p, my_rank;
 	MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
@@ -51,6 +53,7 @@ int main(int argc, char* argv[]){
 
 	//root node stuff goes here
 	if(my_rank == 0){
+		#pragma omp parallel for
 		for(int i = 0; i <=numParticleLight; ++i){
 			mass[i] = massLightMin + (drand48() * ((massLightMax - massLightMin)+1));
 			velx[i] = velocityLightMin + (drand48() * ((velocityLightMax - velocityLightMin)+1));
@@ -58,7 +61,7 @@ int main(int argc, char* argv[]){
 			x[i] = drand48() * width;
 			y[i] = drand48() * height;
 		}
-
+		#pragma omp parallel for
 		for(int i = numParticleLight; i <=numParticleLight + numParticleMedium; ++i){
 			mass[i] = massMediumMin + (drand48() * ((massMediumMax - massMediumMin)+1));
 			velx[i] = velocityMediumMin + (drand48() * ((velocityMediumMax - velocityMediumMin)+1));
@@ -66,7 +69,7 @@ int main(int argc, char* argv[]){
 			x[i] = drand48() * width;
 			y[i] = drand48() * height;
 		}
-
+		#pragma omp parallel for
 		for(int i = numParticleLight + numParticleMedium; i <=n; ++i){
 			mass[i] = massHeavyMin + (drand48() * ((massHeavyMax - massHeavyMin)+1));
 			velx[i] = velocityHeavyMin + (drand48() * ((velocityHeavyMax - velocityHeavyMin)+1));
@@ -100,6 +103,7 @@ int main(int argc, char* argv[]){
 
 	for(steps = 0; steps < numSteps*subSteps; steps++){
 		if(steps % subSteps == 0 && my_rank == 0){
+			#pragma omp parallel for
 			for(int i = 0; i <n; i++){
 				//printf("SubStep TIMESTEP: %d PARTICLE %d POSX: %f, POSY: %f VELX: %f VELY: %f FORCEX: %f FORCEY: %f\n", steps, i, x[i], y[i], velx[i], vely[i], forcex[i], forcey[i]);
 				//cout << "Substep Timestep "<< steps << " Particle " << i << " Pos X " << x[i] << " Pos Y " << y[i] << " VelX " << velx[i] << " VelY " << vely[i] << " ForceX " << forcex[i] << " ForceY " << forcey[i] << endl;
@@ -145,6 +149,7 @@ int main(int argc, char* argv[]){
 			printf("Saving picture #%d\n", ultimate_counter++);
 
 			//assigning pixels to black again
+			#pragma omp parallel for
             for(int i = 0; i <n; i++){
 				if (i < numParticleLight){
 	                image[((int)x[i] + width*(int)y[i])*3] =  0;
@@ -164,10 +169,12 @@ int main(int argc, char* argv[]){
 		}
 
 		//Compute the forces on each particle
+		#pragma omp parallel for
 		for(int i = 0; i < n; i++){
 			//forcex[i] = 0;
 			//forcey[i] = 0;
 			//printf("One %f %f \n", forcex[i],forcey[i]);
+			#pragma omp parallel for
 			for(int j = 0; j < n; j++){
 				if(i != j){
 					double x_diff = (x[j] - x[i]);
@@ -193,6 +200,7 @@ int main(int argc, char* argv[]){
 
 		//Compute position and velocity
 		//Double the for loop 
+		#pragma omp parallel for
 		for(int i = 1; i <= loc_n; i++){
 			localvelx[i] = velx[i*my_rank+i-1] + timeSubStep * forcex[i*my_rank+i-1] / mass[i];
 			localvely[i] = vely[i*my_rank+i-1] + timeSubStep * forcey[i*my_rank+i-1] / mass[i];

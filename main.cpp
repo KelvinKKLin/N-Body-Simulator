@@ -103,7 +103,7 @@ int main(int argc, char* argv[]){
 			for(int i = 0; i <n; i++){
 				//printf("SubStep TIMESTEP: %d PARTICLE %d POSX: %f, POSY: %f VELX: %f VELY: %f FORCEX: %f FORCEY: %f\n", steps, i, x[i], y[i], velx[i], vely[i], forcex[i], forcey[i]);
 				//cout << "Substep Timestep "<< steps << " Particle " << i << " Pos X " << x[i] << " Pos Y " << y[i] << " VelX " << velx[i] << " VelY " << vely[i] << " ForceX " << forcex[i] << " ForceY " << forcey[i] << endl;
-				
+				//printf("%f %f", check, check2);
 				//image array 
 				if (i < numParticleLight){
 	                image[((int)x[i] + width*(int)y[i])*3] =  0;
@@ -164,8 +164,9 @@ int main(int argc, char* argv[]){
 
 		//Compute the forces on each particle
 		for(int i = 0; i < n; i++){
-			forcex[i] = 0;
-			forcey[i] = 0;
+			//forcex[i] = 0;
+			//forcey[i] = 0;
+			//printf("One %f %f \n", forcex[i],forcey[i]);
 			for(int j = 0; j < n; j++){
 				if(i != j){
 					double x_diff = (x[j] - x[i]);
@@ -176,15 +177,16 @@ int main(int argc, char* argv[]){
 					forcey[i] += force * y_diff / dist;
 
 					//These guards may be removed when warping is complete.
-					if(isnan(forcex[i])){
-						forcex[i] = 0;
+					if((forcex[i])!=forcex[i]){
+						forcex[i] = 1;
 					}
-					if(isnan(forcey[i])){
-						forcey[i] = 0;
+					if(forcey[i]!=forcey[i]){
+						forcey[i] = 1;
 					}
 
 				}
 			}
+			//printf("Two %f %f \n", forcex[i], forcey[i]);
 
 		}
 
@@ -194,11 +196,11 @@ int main(int argc, char* argv[]){
 			localvely[i] = vely[i] + timeSubStep * forcey[i] / mass[i];
 
 			//These guards may be removed when warping is complete
-			if(isnan(localvelx[i])){
-				localvelx[i] = 0;
+			if((localvelx[i])!=localvelx[i]){
+				localvelx[i] = 1;
 			}
-			if(isnan(localvely[i])){
-				localvely[i] = 0;
+			if((localvely[i])!=localvely[i]){
+				localvely[i] = 1;
 			}
 
 			//TODO: Implement intelligent warp

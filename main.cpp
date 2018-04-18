@@ -105,6 +105,7 @@ int main(int argc, char* argv[]){
 				//cout << "Substep Timestep "<< steps << " Particle " << i << " Pos X " << x[i] << " Pos Y " << y[i] << " VelX " << velx[i] << " VelY " << vely[i] << " ForceX " << forcex[i] << " ForceY " << forcey[i] << endl;
 				//printf("%f %f", check, check2);
 				//image array 
+
 				if (i < numParticleLight){
 	                image[((int)x[i] + width*(int)y[i])*3] =  0;
 	                image[((int)x[i] + width*(int)y[i])*3+1] = 0;
@@ -191,9 +192,10 @@ int main(int argc, char* argv[]){
 		}
 
 		//Compute position and velocity
+		//Double the for loop 
 		for(int i = 0; i < loc_n; i++){
-			localvelx[i] = velx[i] + timeSubStep * forcex[i] / mass[i];
-			localvely[i] = vely[i] + timeSubStep * forcey[i] / mass[i];
+			localvelx[i] = velx[i] + timeSubStep * forcex[i*loc_n] / mass[i];
+			localvely[i] = vely[i] + timeSubStep * forcey[i*loc_n] / mass[i];
 
 			//These guards may be removed when warping is complete
 			if((localvelx[i])!=localvelx[i]){

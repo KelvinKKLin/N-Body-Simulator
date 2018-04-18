@@ -194,8 +194,8 @@ int main(int argc, char* argv[]){
 		//Compute position and velocity
 		//Double the for loop 
 		for(int i = 1; i <= loc_n; i++){
-			localvelx[i] = velx[i] + timeSubStep * forcex[i*my_rank+i-1] / mass[i];
-			localvely[i] = vely[i] + timeSubStep * forcey[i*my_rank+i-1] / mass[i];
+			localvelx[i] = velx[i*my_rank+i-1] + timeSubStep * forcex[i*my_rank+i-1] / mass[i];
+			localvely[i] = vely[i*my_rank+i-1] + timeSubStep * forcey[i*my_rank+i-1] / mass[i];
 
 			//These guards may be removed when warping is complete
 			if((localvelx[i])!=localvelx[i]){
@@ -206,8 +206,8 @@ int main(int argc, char* argv[]){
 			}
 
 			//TODO: Implement intelligent warp
-			double distXToTravel = x[i] + timeSubStep * localvelx[i];
-			double distYToTravel = y[i] + timeSubStep * localvely[i];
+			double distXToTravel = x[i*my_rank+i-1] + timeSubStep * localvelx[i];
+			double distYToTravel = y[i*my_rank+i-1] + timeSubStep * localvely[i];
 			int newx = (int) distXToTravel;
 			int newy = (int) distYToTravel;
 

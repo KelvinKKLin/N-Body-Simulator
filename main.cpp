@@ -193,9 +193,9 @@ int main(int argc, char* argv[]){
 
 		//Compute position and velocity
 		//Double the for loop 
-		for(int i = 0; i < loc_n; i++){
-			localvelx[i] = velx[i] + timeSubStep * forcex[i*my_rank+i] / mass[i];
-			localvely[i] = vely[i] + timeSubStep * forcey[i*my_rank+i] / mass[i];
+		for(int i = 1; i <= loc_n; i++){
+			localvelx[i] = velx[i] + timeSubStep * forcex[i*my_rank+i-1] / mass[i];
+			localvely[i] = vely[i] + timeSubStep * forcey[i*my_rank+i-1] / mass[i];
 
 			//These guards may be removed when warping is complete
 			if((localvelx[i])!=localvelx[i]){

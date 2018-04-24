@@ -158,4 +158,12 @@ From Figure 7, it is clear that the efficiency decreases exponentially as the nu
 
 From Figure 8, it is clear that the efficiency decreases as the number of processors and the problem size linearly increases for the MPI optimized with OpenMP version. Accordingly, the MPI optimized with OpenMP implementation is not weakly scalable.
 
+\newpage
+\section{Question 3}
+\subsection{Pure MPI}
+\subsubsection{Timing}
+In Figure 1, for 32000 particles, the time it takes decreases from 1 processor to 4 processors; however, the time then increases at 8 processors and then slowly decrease. The reason for this decrease may be because the arrangement of data is might have been better aligned when there were 2 or 4 processors opposed to when there were more. The increase in overhead of data transfer may have offset the benefits of additional processors, which is why the time increased after 4 processors.
+
+Similarly, for 16000 particles, the time taken increased from 1 processor to 2 processors, decreased from 2 processors to 4 processors, and then slowly increased thereafter. The timing observed may be due to the same reason mentioned above. The time taken to split data between 2 processors might have significantly offset the computation time. 4 processors minimized the amount of data transfer which allowed for the minimum processing time. Thereafter, the computational power grew at a slower rate than the data transfer time, which caused the timing to slowly increase.
+
 \end{document}

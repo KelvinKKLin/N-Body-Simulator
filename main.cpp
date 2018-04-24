@@ -1,3 +1,11 @@
+/**
+ * main.cpp
+ *
+ * This file implements a parallel version of the n-body solver.
+ * 
+ * Authors: Kelvin Lin, Prabhbir Pooni, Yanting Zhang
+ *
+ **/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,21 +18,24 @@
 
 #define epsilon 0.000000000000000222
 
-using namespace std;
-
 int main(int argc, char* argv[]){
 	
+	//Check desired number of arguments
 	if( argc != 10){
 		printf("Usage: %s numParticlesLight numParticleMedium numParticleHeavy numSteps subSteps timeSubStep imageWidth imageHeight imageFilenamePrefix\n", argv[0]);
 		return -1;
 	}
-	omp_set_num_threads(4);
+
+	//Set up OpenMP
+	//omp_set_num_threads(4);
+
+	//Initialize MPI
 	MPI_Init(&argc,&argv);
 	int p, my_rank;
 	MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
 	MPI_Comm_size(MPI_COMM_WORLD, &p);
 
-	//variables
+	//Extract and initialize variables for the solver
 	int numParticleLight = atoi(argv[1]);
 	int numParticleMedium = atoi(argv[2]);
 	int numParticleHeavy = atoi(argv[3]);
@@ -40,8 +51,7 @@ int main(int argc, char* argv[]){
 	double* y	 = (double*) calloc(sizeof(double) * n, sizeof(double));
 
 	int steps = 0;
-	int numSteps = atoi(argv[4]);
-        numSteps = numSteps+1;
+	int numSteps = atoi(argv[4]) + 1;
 	int subSteps = atoi(argv[5]);
 	double timeSubStep = atof(argv[6]);
 	int width = atoi(argv[7]);
@@ -51,9 +61,9 @@ int main(int argc, char* argv[]){
 
 	unsigned char* image = NULL;
 
-	//root node stuff goes here
+	//Randomly assign initial values with drand48()
 	if(my_rank == 0){
-		#pragma omp parallel for
+		//#pragma omp parallel for
 		for(int i = 0; i <=numParticleLight; ++i){
 			mass[i] = massLightMin + (drand48() * ((massLightMax - massLightMin)+1));
 			velx[i] = velocityLightMin + (drand48() * ((velocityLightMax - velocityLightMin)+1));
@@ -61,7 +71,7 @@ int main(int argc, char* argv[]){
 			x[i] = drand48() * width;
 			y[i] = drand48() * height;
 		}
-		#pragma omp parallel for
+		//#pragma omp parallel for
 		for(int i = numParticleLight; i <=numParticleLight + numParticleMedium; ++i){
 			mass[i] = massMediumMin + (drand48() * ((massMediumMax - massMediumMin)+1));
 			velx[i] = velocityMediumMin + (drand48() * ((velocityMediumMax - velocityMediumMin)+1));
@@ -69,7 +79,7 @@ int main(int argc, char* argv[]){
 			x[i] = drand48() * width;
 			y[i] = drand48() * height;
 		}
-		#pragma omp parallel for
+		//#pragma omp parallel for
 		for(int i = numParticleLight + numParticleMedium; i <=n; ++i){
 			mass[i] = massHeavyMin + (drand48() * ((massHeavyMax - massHeavyMin)+1));
 			velx[i] = velocityHeavyMin + (drand48() * ((velocityHeavyMax - velocityHeavyMin)+1));
@@ -89,10 +99,12 @@ int main(int argc, char* argv[]){
 
 	image = (unsigned char *) calloc(sizeof(unsigned char)* 3 * width * height, sizeof(unsigned char));		
 	
+	//Start the timer
 	if(my_rank==0){
 		timeOne = MPI_Wtime();
 	}
 
+	//Broadcast variables to the individual nodes
 	MPI_Bcast(mass, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 	MPI_Bcast(x, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 	MPI_Bcast(y, n, MPI_DOUBLE, 0,  MPI_COMM_WORLD);
@@ -101,11 +113,13 @@ int main(int argc, char* argv[]){
 
 	int ultimate_counter = 0;
 
+	//Core iterative process
 	for(steps = 0; steps < numSteps*subSteps; steps++){
+		//Save the image at each major timestep
 		if(steps % subSteps == 0 && my_rank == 0){
+			//Create the image
 			//#pragma omp parallel for
 			for(int i = 0; i <n; i++){
-
 				if (i < numParticleLight){
 	                image[((int)x[i] + width*(int)y[i])*3] =  0;
 	                image[((int)x[i] + width*(int)y[i])*3+1] = 0;
@@ -135,7 +149,7 @@ int main(int argc, char* argv[]){
                 }
 			}
 
-			//user input filename
+			//Save the image
 			char integer_string[32];
 			char filename[64];
 			sprintf(integer_string, "%d", steps);
@@ -144,7 +158,7 @@ int main(int argc, char* argv[]){
 			saveBMP(filename, image, width, height);
 			printf("Saving picture #%d\n", ultimate_counter++);
 
-			//assigning pixels to black again
+			//Reset the image
 			//#pragma omp parallel for
             for(int i = 0; i <n; i++){
 				if (i < numParticleLight){
@@ -169,7 +183,6 @@ int main(int argc, char* argv[]){
 		for(int i = 0; i < n; i++){
 			//forcex[i] = 0;
 			//forcey[i] = 0;
-			//printf("One %f %f \n", forcex[i],forcey[i]);
 			//#pragma omp parallel for
 			for(int j = 0; j < n; j++){
 				if(i != j){
@@ -180,7 +193,7 @@ int main(int argc, char* argv[]){
 					forcex[i] += force * x_diff / dist;
 					forcey[i] += force * y_diff / dist;
 
-					//These guards may be removed when warping is complete.
+					//Check if forcex[i] is not a number, if so, reset it to 1
 					if((forcex[i])!=forcex[i]){
 						forcex[i] = 1;
 					}
@@ -190,18 +203,15 @@ int main(int argc, char* argv[]){
 
 				}
 			}
-			//printf("Two %f %f \n", forcex[i], forcey[i]);
-
 		}
 
 		//Compute position and velocity
-		//Double the for loop 
 		//#pragma omp parallel for
 		for(int i = 1; i <= loc_n; i++){
 			localvelx[i] = velx[i*my_rank+i-1] + timeSubStep * forcex[i*my_rank+i-1] / mass[i];
 			localvely[i] = vely[i*my_rank+i-1] + timeSubStep * forcey[i*my_rank+i-1] / mass[i];
 
-			//These guards may be removed when warping is complete
+			//Check if localvel[x] and localvely[i] are nan. If so, reset to 1.
 			if((localvelx[i])!=localvelx[i]){
 				localvelx[i] = 1;
 			}
@@ -209,7 +219,7 @@ int main(int argc, char* argv[]){
 				localvely[i] = 1;
 			}
 
-			//TODO: Implement intelligent warp
+			//Warp the particle if it goes off the screen
 			double distXToTravel = x[i*my_rank+i-1] + timeSubStep * localvelx[i];
 			double distYToTravel = y[i*my_rank+i-1] + timeSubStep * localvely[i];
 			int newx = (int) distXToTravel;
@@ -226,7 +236,7 @@ int main(int argc, char* argv[]){
 			locposy[i] = newy % height;
 		}
 
-		//All gather
+		//Wait until all nodes are done, then gather and send everything to every node
 		MPI_Barrier(MPI_COMM_WORLD);
 		MPI_Allgather(locposx, loc_n, MPI_DOUBLE, x, loc_n, MPI_DOUBLE, MPI_COMM_WORLD);
 		MPI_Allgather(locposy, loc_n, MPI_DOUBLE, y, loc_n, MPI_DOUBLE, MPI_COMM_WORLD);
@@ -234,14 +244,17 @@ int main(int argc, char* argv[]){
 		MPI_Allgather(localvely, loc_n, MPI_DOUBLE, vely, loc_n, MPI_DOUBLE, MPI_COMM_WORLD);
 	}
 	
+	//Wait until all nodes are done
 	MPI_Barrier(MPI_COMM_WORLD);
 
+	//Collect and broadcast the time
 	if(my_rank==0){
 	   timeTwo = MPI_Wtime();
            timeFinal = timeTwo-timeOne;
 	   printf("%lf \n", timeFinal);
 	}
 
+	//Free the pointers
 	free(image);
 	free(localvelx);
 	free(localvely);
@@ -255,6 +268,9 @@ int main(int argc, char* argv[]){
 	free(x);
 	free(y);
 
+	//Finalize MPI
 	MPI_Finalize();
+
+	//Return success
 	return 0;
 }

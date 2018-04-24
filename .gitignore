@@ -1,3 +1,7 @@
-IMAGE_*
-x.project
+*.project
 *.o
+*.aux
+*.out
+*.log
+*.pdf
+*.synctex.gz

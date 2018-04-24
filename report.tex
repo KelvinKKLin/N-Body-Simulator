@@ -120,11 +120,42 @@ Each line represents a different number of particles. The x-axis represent the d
 \end{figure}
 
 \section{Question 2}
+The algorithms are neither strongly nor weakly scalable.
+
 \subsection{Strong Scalability}
 A strongly scalable algorithm is an algorithm where given a fixed problem size, as the number of processors increase, the efficiency stays about the same.
 
-If an algorithm is strongly scalable, then an approximately straight horizontal line should be observed in Figure 5. Figure 5 shows whether an alogirithm is strongly scalable because each line shows the efficiency of the processors for a fixed problem size as the number of processors used increases.
+If an algorithm is strongly scalable, then an approximately straight horizontal line should be observed in Figure 5. Figure 5 shows whether an algorithm is strongly scalable because each line shows the efficiency of the processors for a fixed problem size as the number of processors used increases.
 
 From Figure 5, it is clear that the efficiency decreases in an exponential fashion for all input sizes. Accordingly, the algorithm is not strongly scalable.
+
+Similar analysis was done with the tuned program using Figure 6. From Figure 6, it is also clear that the efficiency decreases in an exponential fashion for all input sizes. Accordingly, the algorithm is also not strongly scalable.
+
+\subsection{Weak Scalability}
+A weakly scalable algorithm is an algorithm where, as the problem size and the number of processors scale at the same rate, the efficiency stays about the same.
+
+To determine weak scalability, a plot mapping the efficiency as the number of processors and the problem size scales uniformly was created. In the plots below, the x-axis represents the number of processors while the y-axis represents the efficiency. The problem size as a tuple of \texttt{(number of processors, problem size)} is {(1, 2000), (2, 4000), (4, 8000), (8, 16000), (16, 32000)}.
+
+\begin{figure}[H]
+	\begin{center}
+		\hspace*{-0.5cm}                                                           
+  		\includegraphics[scale=0.7]{Report_Assets/weakscalempi.png}
+  	\end{center}
+  	\caption{A plot showing whether the pure MPI version is weakly scalable}
+\end{figure}
+
+\begin{figure}[H]
+	\begin{center}
+		\hspace*{-0.5cm}                                                           
+  		\includegraphics[scale=0.8]{Report_Assets/weakscaleomp.png}
+  	\end{center}
+  	\caption{A plot showing whether the MPI optimized with OpenMP version is weakly scalable}
+\end{figure}
+
+If the algorithm was weakly scalable, then an approximately straight line should be observed in Figures 7 and 8. 
+
+From Figure 7, it is clear that the efficiency decreases exponentially as the number of processors and the problem size linearly increases for the pure MPI implementation. Accordingly, the pure MPI version is not weakly scalable.
+
+From Figure 8, it is clear that the efficiency decreases as the number of processors and the problem size linearly increases for the MPI optimized with OpenMP version. Accordingly, the MPI optimized with OpenMP implementation is not weakly scalable.
 
 \end{document}

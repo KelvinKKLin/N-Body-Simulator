@@ -49,28 +49,74 @@
 \section{Question 1}
 Using \texttt{MPIHost}, timing, speed-up, and efficiency plots were generated for 1, 2, 4, 8, 16, and 32 processors. The program was tested with 2000, 4000, 8000, 16000, and 32000 particles. 9 major steps were used with 1 substep in between. The image produced was 2550 pixels in width by 1960 pixels in height.
 
-\subsection{Timing Plot}
-The following graph is a timing plot for the different image sizes, different number of particles, and different number of processors. Each line represents a different number of particles. The x-axis represents the number of processors while the y-axis represents the time it took to run the program.
+For each section, two graphs will be presented. The first graph shows metrics for a pure MPI implementation, while the second graph shows metrics for an MPI implementation optimized with OpenMP.
 
+\subsection{Timing Plot}
+The following graphs are timing plots for the different image sizes, different number of particles, and different number of processors. Each line represents a different number of particles. The x-axis represents the number of processors while the y-axis represents the time it took to run the program.
+
+\subsubsection{Pure MPI}
 \begin{figure}[H]
 	\begin{center}
 		\hspace*{-0.5cm}                                                           
   		\includegraphics[scale=0.83]{Report_Assets/timingmpi.png}
   	\end{center}
-  	\caption{The timing plot with varying the number of processors and particles}
+  	\caption{The timing plot with varying the number of processors and particles in MPI}
+\end{figure}
+
+\subsubsection{MPI Optimized with OpenMP}
+\begin{figure}[H]
+	\begin{center}
+		\hspace*{-0.5cm}                                                           
+  		\includegraphics[scale=0.83]{Report_Assets/timingomp.png}
+  	\end{center}
+  	\caption{The timing plot with varying the number of processors and particles in MPI with OpenMP}
 \end{figure}
 
 \subsection{Speedup Plot}
-The following graph is a speedup plot for the different image sizes, different number of particles, and different number of processors.
+The following graphs are speedup plots for the different image sizes, different number of particles, and different number of processors.
 
 Each line represents a different number of particles. The x-axis represents the number of processors used, while the y-axis represents the speedup observed.
 
+\subsubsection{Pure MPI}
 \begin{figure}[H]
 	\begin{center}
 		\hspace*{-0.5cm}                                                           
-  		\includegraphics[scale=0.83]{Report_Assets/timingmpi.png}
+  		\includegraphics[scale=0.71]{Report_Assets/speedupmpi.png}
   	\end{center}
-  	\caption{The speedup plot with varying the number of processors and particles}
+  	\caption{The speedup plot with varying the number of processors and particles in MPI}
+\end{figure}
+
+\subsubsection{MPI Optimized with OpenMP}
+\begin{figure}[H]
+	\begin{center}
+		\hspace*{-0.5cm}                                                           
+  		\includegraphics[scale=0.71]{Report_Assets/speedupomp.png}
+  	\end{center}
+  	\caption{The speedup plot with varying the number of processors and particles in MPI with OpenMP}
+\end{figure}
+
+\newpage
+\subsection{Efficiency Plot}
+The following graphs are efficiency plots for the different image sizes, different number of particles, and different number of processors.
+
+Each line represents a different number of particles. The x-axis represent the different number of processors used, while the y-axis represents the efficiency.
+
+\subsubsection{Pure MPI}
+\begin{figure}[H]
+	\begin{center}
+		\hspace*{-0.5cm}                                                           
+  		\includegraphics[scale=0.65]{Report_Assets/efficiencympi.png}
+  	\end{center}
+  	\caption{The efficiency plot with varying the number of processors and particles in MPI}
+\end{figure}
+
+\subsubsection{MPI Optimized with OpenMP}
+\begin{figure}[H]
+	\begin{center}
+		\hspace*{-0.5cm}                                                           
+  		\includegraphics[scale=0.6]{Report_Assets/efficiencyomp.png}
+  	\end{center}
+  	\caption{The efficiency plot with varying the number of processors and particles in MPI with OpenMP}
 \end{figure}
 
 \end{document}

@@ -178,5 +178,22 @@ In Figure 3, the efficiency for both 16000 and 32000 decreased slower from 1 pro
 
 There were no anomalies from 2000 to 4000 particles, perhaps because the input size was not big enough to be a computational challenge for the CPU.
 
+\subsection{MPI Optimized with OpenMP}
+The observations with this version were identical to the ones with pure MPI. For this reason, the explanations below are repeated from the explanations above. 
 
+\subsubsection{Timing}
+In Figure 4, for 32000 particles, the time it takes decreases from 1 processor to 4 processors; however, the time then increases at 8 processors and then slowly decrease. The reason for this decrease may be because the arrangement of data is might have been better aligned when there were 2 or 4 processors opposed to when there were more. The increase in overhead of data transfer may have offset the benefits of additional processors, which is why the time increased after 4 processors.
+
+Similarly, for 16000 particles, the time taken increased from 1 processor to 2 processors, decreased from 2 processors to 4 processors, and then slowly increased thereafter. The timing observed may be due to the same reason mentioned above. The time taken to split data between 2 processors might have significantly offset the computation time. 4 processors minimized the amount of data transfer which allowed for the minimum processing time. Thereafter, the computational power grew at a slower rate than the data transfer time, which caused the timing to slowly increase.
+
+There were no anomalies from 2000 to 4000 particles, perhaps because the input size was not big enough to be a computational challenge for the CPU.
+\subsubsection{Speedup}
+In Figure 5, for both 16000 and 32000 particles, the speedup increased from 1 to 4 processors, but then decreased from 8 to 16 processors. This reflects the patterns observed in Figure 1. Since the data was better aligned with 1, 2, and 4 processors, there was a greater speedup, but afterwards, the cost of data transfer outweighed the benefits of additional computation power, which caused the slowdown to decrease.
+
+There were no anomalies from 2000 to 4000 particles, perhaps because the input size was not big enough to be a computational challenge for the CPU.
+
+\subsubsection{Efficiency}
+In Figure 6, the efficiency for both 16000 and 32000 decreased slower from 1 processor to 4 processors than the others because of the data alignment issue outlined in the previous two sections. 
+
+There were no anomalies from 2000 to 4000 particles, perhaps because the input size was not big enough to be a computational challenge for the CPU.
 \end{document}

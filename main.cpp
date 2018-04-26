@@ -107,8 +107,6 @@ int main(int argc, char* argv[]){
 	MPI_Bcast(velx, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 	MPI_Bcast(vely, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
-	int ultimate_counter = 0;
-
 	//Compute the times
 	double min_time = DBL_MAX;
 	double max_time = DBL_MIN;

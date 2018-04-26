@@ -12,6 +12,7 @@
 #include <mpi.h>
 #include <math.h>
 #include <omp.h>
+#include <float.h>
 #include "vector3d.h"
 #include "savebmp.h"
 #include "properties.h"
@@ -98,11 +99,6 @@ int main(int argc, char* argv[]){
 	int loc_n = n/p;
 
 	image = (unsigned char *) calloc(sizeof(unsigned char)* 3 * width * height, sizeof(unsigned char));		
-	
-	//Start the timer
-	if(my_rank==0){
-		timeOne = MPI_Wtime();
-	}
 
 	//Broadcast variables to the individual nodes
 	MPI_Bcast(mass, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
@@ -111,7 +107,10 @@ int main(int argc, char* argv[]){
 	MPI_Bcast(velx, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 	MPI_Bcast(vely, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
-	int ultimate_counter = 0;
+	//Compute the times
+	double min_time = DBL_MAX;
+	double max_time = DBL_MIN;
+	double average_time = 0;
 
 	//Core iterative process
 	for(steps = 0; steps < numSteps*subSteps; steps++){
@@ -156,7 +155,7 @@ int main(int argc, char* argv[]){
 			sprintf(filename, argv[9]);
 			strcat(filename, integer_string);
 			saveBMP(filename, image, width, height);
-			printf("Saving picture #%d\n", ultimate_counter++);
+			//printf("Saving picture #%d\n", ultimate_counter++);
 
 			//Reset the image
 			//#pragma omp parallel for
@@ -178,11 +177,16 @@ int main(int argc, char* argv[]){
 			}
 		}
 
+		//Start the timer
+		if(my_rank==0){
+			timeOne = MPI_Wtime();
+		}
+
 		//Compute the forces on each particle
 		//#pragma omp parallel for
 		for(int i = 0; i < n; i++){
-			//forcex[i] = 0;
-			//forcey[i] = 0;
+			forcex[i] = 0;
+			forcey[i] = 0;
 			//#pragma omp parallel for
 			for(int j = 0; j < n; j++){
 				if(i != j){
@@ -236,6 +240,19 @@ int main(int argc, char* argv[]){
 			locposy[i] = newy % height;
 		}
 
+		//Collect and broadcast the time
+		if(my_rank==0){
+		   timeTwo = MPI_Wtime();
+	       timeFinal = timeTwo-timeOne;
+		   average_time += timeFinal;
+		   if(timeFinal > max_time){
+		   		max_time = timeFinal;
+		   }
+		   if(timeFinal < min_time){
+		   		min_time = timeFinal;
+		   }
+		}
+
 		//Wait until all nodes are done, then gather and send everything to every node
 		MPI_Barrier(MPI_COMM_WORLD);
 		MPI_Allgather(locposx, loc_n, MPI_DOUBLE, x, loc_n, MPI_DOUBLE, MPI_COMM_WORLD);
@@ -247,11 +264,8 @@ int main(int argc, char* argv[]){
 	//Wait until all nodes are done
 	MPI_Barrier(MPI_COMM_WORLD);
 
-	//Collect and broadcast the time
-	if(my_rank==0){
-	   timeTwo = MPI_Wtime();
-           timeFinal = timeTwo-timeOne;
-	   printf("%lf \n", timeFinal);
+	if(my_rank == 0){
+		printf("%f %f %f\n", min_time, max_time, average_time/(numSteps*subSteps));
 	}
 
 	//Free the pointers
@@ -270,7 +284,7 @@ int main(int argc, char* argv[]){
 
 	//Finalize MPI
 	MPI_Finalize();
-
+	
 	//Return success
 	return 0;
 }

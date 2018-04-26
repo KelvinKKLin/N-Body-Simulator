@@ -157,7 +157,7 @@ int main(int argc, char* argv[]){
 			sprintf(filename, argv[9]);
 			strcat(filename, integer_string);
 			saveBMP(filename, image, width, height);
-			printf("Saving picture #%d\n", ultimate_counter++);
+			//printf("Saving picture #%d\n", ultimate_counter++);
 
 			//Reset the image
 			//#pragma omp parallel for

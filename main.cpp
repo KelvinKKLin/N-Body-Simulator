@@ -285,7 +285,7 @@ int main(int argc, char* argv[]){
 	//Finalize MPI
 	MPI_Finalize();
 
-	printf("%lf %lf %lf", min_time, max_time, average_time/(numSteps*subSteps));
+	printf("%f %f %f\n", min_time, max_time, average_time/(numSteps*subSteps));
 
 	//Return success
 	return 0;

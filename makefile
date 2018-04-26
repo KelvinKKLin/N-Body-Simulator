@@ -1,6 +1,6 @@
 CC=mpiCC
-CFLAGS=-c -g -Wall -std=c++11
-LDFLAGS=-lm
+CFLAGS=-c -g -Wall -std=c++11 -fopenmp
+LDFLAGS=-lm -fopenmp
 OBJECTS=$(SOURCES:.cpp=.o)
 
 SOURCES=main.cpp savebmp.c

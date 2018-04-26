@@ -196,4 +196,132 @@ There were no anomalies from 2000 to 4000 particles, perhaps because the input s
 In Figure 6, the efficiency for both 16000 and 32000 decreased slower from 1 processor to 4 processors than the others because of the data alignment issue outlined in the previous two sections. 
 
 There were no anomalies from 2000 to 4000 particles, perhaps because the input size was not big enough to be a computational challenge for the CPU.
+
+\section{Question 4}
+To optimize the code, OpenMP was used alongside MPI to have the program run on multiple threads within each node. Each for loop was optimized by adding the directive \texttt{\#pragma omp parallel for} before it. No customizations were made as it was found in Assignment 1 that the default configurations often yield the best results. 
+
+Overall, the execution time of the program increased using OpenMP. The results of the tuning are presented below.
+
+The following plots compare the pure MPI implementation against the MPI optimized with OpenMP version for 2000, 4000, 8000, 16000, and 32000 particles. Timing, speedup, and efficiency plots are provided. The axis are identical to the ones presented in section 1.
+
+\begin{figure}[H]
+	\begin{center}
+		\hspace*{-0.5cm}                                                           
+  		\includegraphics[scale=0.7]{Report_Assets/timing2000.png}
+  	\end{center}
+  	\caption{Timing comparison at 2000 particles}
+\end{figure}
+
+\begin{figure}[H]
+	\begin{center}
+		\hspace*{-0.5cm}                                                           
+  		\includegraphics[scale=0.7]{Report_Assets/speedup2000.png}
+  	\end{center}
+  	\caption{Speedup comparison at 2000 particles}
+\end{figure}
+
+\begin{figure}[H]
+	\begin{center}
+		\hspace*{-0.5cm}                                                           
+  		\includegraphics[scale=0.7]{Report_Assets/efficiency2000.png}
+  	\end{center}
+  	\caption{Efficiency comparison at 2000 particles}
+\end{figure}
+
+\begin{figure}[H]
+	\begin{center}
+		\hspace*{-0.5cm}                                                           
+  		\includegraphics[scale=0.7]{Report_Assets/timing4000.png}
+  	\end{center}
+  	\caption{Timing comparison at 4000 particles}
+\end{figure}
+
+\begin{figure}[H]
+	\begin{center}
+		\hspace*{-0.5cm}                                                           
+  		\includegraphics[scale=0.7]{Report_Assets/speedup4000.png}
+  	\end{center}
+  	\caption{Speedup comparison at 4000 particles}
+\end{figure}
+
+\begin{figure}[H]
+	\begin{center}
+		\hspace*{-0.5cm}                                                           
+  		\includegraphics[scale=0.7]{Report_Assets/efficiency4000.png}
+  	\end{center}
+  	\caption{Efficiency comparison at 4000 particles}
+\end{figure}
+
+\begin{figure}[H]
+	\begin{center}
+		\hspace*{-0.5cm}                                                           
+  		\includegraphics[scale=0.7]{Report_Assets/timing8000.png}
+  	\end{center}
+  	\caption{Timing comparison at 8000 particles}
+\end{figure}
+
+\begin{figure}[H]
+	\begin{center}
+		\hspace*{-0.5cm}                                                           
+  		\includegraphics[scale=0.7]{Report_Assets/speedup8000.png}
+  	\end{center}
+  	\caption{Speedup comparison at 8000 particles}
+\end{figure}
+
+\begin{figure}[H]
+	\begin{center}
+		\hspace*{-0.5cm}                                                           
+  		\includegraphics[scale=0.7]{Report_Assets/efficiency8000.png}
+  	\end{center}
+  	\caption{Efficiency comparison at 8000 particles}
+\end{figure}
+
+\begin{figure}[H]
+	\begin{center}
+		\hspace*{-0.5cm}                                                           
+  		\includegraphics[scale=0.7]{Report_Assets/timing16000.png}
+  	\end{center}
+  	\caption{Timing comparison at 16000 particles}
+\end{figure}
+
+\begin{figure}[H]
+	\begin{center}
+		\hspace*{-0.5cm}                                                           
+  		\includegraphics[scale=0.7]{Report_Assets/speedup16000.png}
+  	\end{center}
+  	\caption{Speedup comparison at 16000 particles}
+\end{figure}
+
+\begin{figure}[H]
+	\begin{center}
+		\hspace*{-0.5cm}                                                           
+  		\includegraphics[scale=0.7]{Report_Assets/efficiency16000.png}
+  	\end{center}
+  	\caption{Efficiency comparison at 16000 particles}
+\end{figure}
+
+\begin{figure}[H]
+	\begin{center}
+		\hspace*{-0.5cm}                                                           
+  		\includegraphics[scale=0.7]{Report_Assets/timing32000.png}
+  	\end{center}
+  	\caption{Timing comparison at 32000 particles}
+\end{figure}
+
+\begin{figure}[H]
+	\begin{center}
+		\hspace*{-0.5cm}                                                           
+  		\includegraphics[scale=0.7]{Report_Assets/speedup32000.png}
+  	\end{center}
+  	\caption{Speedup comparison at 32000 particles}
+\end{figure}
+
+\begin{figure}[H]
+	\begin{center}
+		\hspace*{-0.5cm}                                                           
+  		\includegraphics[scale=0.7]{Report_Assets/efficiency32000.png}
+  	\end{center}
+  	\caption{Efficiency comparison at 32000 particles}
+\end{figure}
+
 \end{document}

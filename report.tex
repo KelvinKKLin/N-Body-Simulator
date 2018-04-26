@@ -324,4 +324,6 @@ The following plots compare the pure MPI implementation against the MPI optimize
   	\caption{Efficiency comparison at 32000 particles}
 \end{figure}
 
+From the tables above, it is clear that the MPI with OpenMP implementation was faster for all input sizes than the pure MPI implementation. This is perhaps because the CPU is better utilized in a multi-threaded environment as additional computations could occur as data is being transferred. Moreover, it was observed that the benefits of OpenMP were more pronounced as the input size increased. This may be because with small input sizes, there may not be any computations available for the CPU while data is being transfer, so the CPU threads are sitting idle. Accordingly, it can be concluded that OpenMP improves the performance of the software given that the input sizes are large enough.
+
 \end{document}

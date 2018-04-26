@@ -266,7 +266,9 @@ int main(int argc, char* argv[]){
 	//Wait until all nodes are done
 	MPI_Barrier(MPI_COMM_WORLD);
 
-	
+	if(my_rank == 0){
+		printf("%f %f %f\n", min_time, max_time, average_time/(numSteps*subSteps));
+	}
 
 	//Free the pointers
 	free(image);
@@ -284,9 +286,7 @@ int main(int argc, char* argv[]){
 
 	//Finalize MPI
 	MPI_Finalize();
-
-	printf("%f %f %f\n", min_time, max_time, average_time/(numSteps*subSteps));
-
+	
 	//Return success
 	return 0;
 }

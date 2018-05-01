@@ -4,9 +4,9 @@ basic N-body algorithm presented in Pacheco's Introduction to Parallel Programmi
 
 ## Running the Code
 Running the code requires OpenMP and MPI (OpenRTE 1.10.6) to be installed on your computer. To run the code, run the makefile. The
-makefile produces the Linux executable x.project.
+makefile produces the Linux executable `x.project`.
 
-x.project takes the following parameters:
+`x.project` takes the following parameters:
 - **numberOfLightParticles**: the number of light particles to be used in the simulation.
 - **numberOfMediumParticles**: the number of medium particles to be used in the simulation.
 - **numberOfHeavyParticles**: the number of heavy particles to be used in the simulation.
